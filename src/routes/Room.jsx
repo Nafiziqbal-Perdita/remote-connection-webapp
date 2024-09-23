@@ -77,6 +77,7 @@ const Room = () => {
           socketRef.current.emit("offer", payload);
         })
         .catch((e) => console.log(e));
+
     },
     [peerRef, socketRef]
   );
@@ -109,7 +110,7 @@ const Room = () => {
     (userId) => {
       peerRef.current = createPeer(userId);
       userStream.current.getTracks().forEach((track) => {
-        console.log("user Tracks", track); // This will help to ensure tracks are being sent
+        // console.log("user Tracks", track); // This will help to ensure tracks are being sent
         senders.current.push(
           peerRef.current.addTrack(track, userStream.current)
         );
@@ -129,34 +130,38 @@ const Room = () => {
 
   // Handle Receive Call Function
 
-  const handleRecieveCall = useCallback(async (incoming) => {
-    // first it will also connect a peer from own perspective
-    peerRef.current = await createPeer();
-    const desc = await new RTCSessionDescription(incoming.sdp);
-  
-    // Set the remote description for the peer connection
-    peerRef.current.setRemoteDescription(desc).then(() => {
-      // Add tracks to the peer connection
-      userStream.current.getTracks().forEach((track) => {
-        // Add tracks and push them to the `senders` array
-        senders.current.push(peerRef.current.addTrack(track, userStream.current));
-      });
-    })
-    .then(() => peerRef.current.createAnswer())
-    .then((answer) => peerRef.current.setLocalDescription(answer))
-    .then(() => {
-      const payload = {
-        target: incoming.caller,
-        caller: socketRef.current.id,
-        sdp: peerRef.current.localDescription,
-      };
-      socketRef.current.emit("answer", payload);
-    })
-    .catch((e) => console.log(e));
-  }, [createPeer, socketRef, senders]);
-  
+  const handleRecieveCall = useCallback(
+    async (incoming) => {
+      // first it will also connect a peer from own perspective
+      peerRef.current = await createPeer();
+      const desc = await new RTCSessionDescription(incoming.sdp);
 
-
+      // Set the remote description for the peer connection
+      peerRef.current
+        .setRemoteDescription(desc)
+        .then(() => {
+          // Add tracks to the peer connection
+          userStream.current.getTracks().forEach((track) => {
+            // Add tracks and push them to the `senders` array
+            senders.current.push(
+              peerRef.current.addTrack(track, userStream.current)
+            );
+          });
+        })
+        .then(() => peerRef.current.createAnswer())
+        .then((answer) => peerRef.current.setLocalDescription(answer))
+        .then(() => {
+          const payload = {
+            target: incoming.caller,
+            caller: socketRef.current.id,
+            sdp: peerRef.current.localDescription,
+          };
+          socketRef.current.emit("answer", payload);
+        })
+        .catch((e) => console.log(e));
+    },
+    [createPeer, socketRef, senders]
+  );
 
   // Handle New ICE Candidate Message
   const handleNewICECandidateMsg = useCallback(
@@ -168,32 +173,34 @@ const Room = () => {
   );
 
   const shareScreen = useCallback(() => {
-    navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
-      const screenTrack = stream.getTracks()[0];
-  
-      // Find the video sender
-      const videoSender = senders.current.find((sender) => sender.track.kind === "video");
-  
-      if (videoSender) {
-        videoSender.replaceTrack(screenTrack);
-      } else {
-        console.error("No video sender found to replace track");
-      }
-  
-      // When the screen sharing stops, revert to the original video track
-      screenTrack.onended = () => {
-        const originalVideoTrack = userStream.current.getTracks().find((track) => track.kind === "video");
-        if (videoSender && originalVideoTrack) {
-          videoSender.replaceTrack(originalVideoTrack);
+    navigator.mediaDevices
+      .getDisplayMedia({ cursor: true })
+      .then((stream) => {
+        const screenTrack = stream.getTracks()[0];
+
+        // Find the video sender
+        const videoSender = senders.current.find(
+          (sender) => sender.track.kind === "video"
+        );
+
+        if (videoSender) {
+          videoSender.replaceTrack(screenTrack);
+        } else {
+          console.error("No video sender found to replace track");
         }
-      };
-    }).catch((error) => console.error("Error sharing screen: ", error));
+
+        // When the screen sharing stops, revert to the original video track
+        screenTrack.onended = () => {
+          const originalVideoTrack = userStream.current
+            .getTracks()
+            .find((track) => track.kind === "video");
+          if (videoSender && originalVideoTrack) {
+            videoSender.replaceTrack(originalVideoTrack);
+          }
+        };
+      })
+      .catch((error) => console.error("Error sharing screen: ", error));
   }, [senders, userStream]);
-  
-
-
-
-
 
   // Handle Text Message
   const handleRecieveText = useCallback(
@@ -210,8 +217,10 @@ const Room = () => {
       .then((stream) => {
         userVideo.current.srcObject = stream;
         userStream.current = stream;
+        const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+        // console.log("Socket url",SOCKET_URL); // Should print the correct URL
 
-        socketRef.current = io("http://localhost:7000", {
+        socketRef.current = io(SOCKET_URL, {
           withCredentials: true,
           transports: ["websocket", "polling"],
         });
@@ -220,19 +229,25 @@ const Room = () => {
 
         socketRef.current.on("user joined", (userId) => {
           otherUser.current = userId;
-          console.log("A User Has Joined", otherUser.current);
-        
+          // console.log("A User Has Joined", otherUser.current);
         });
         socketRef.current.on("other user", (userId) => {
           otherUser.current = userId;
-          console.log("A User Has Joined", otherUser.current);
+          // console.log("A User Has Joined", otherUser.current);
           callUser(userId);
         });
+
+        socketRef.current.on("room full",({message})=>{
+          alert(message);
+          navigate("/");
+        })
+
 
         socketRef.current.on("answer", handleAnswer);
         socketRef.current.on("offer", handleRecieveCall);
         socketRef.current.on("recieveChat", handleRecieveText);
         socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
+        
       });
 
     return () => {
@@ -266,9 +281,7 @@ const Room = () => {
     setCodeCopy(false);
   };
 
-  console.log(senders.current);
-
-
+  // console.log(senders.current);
 
   return (
     <>
@@ -288,7 +301,7 @@ const Room = () => {
             />
           </div>
 
-          <div className="h-56 w-56 p-1 shadow-md absolute right-3 top-5 flex flex-col  ">
+          <div className="h-40 w-40 sm:h-56 sm:w-56 p-1  absolute right-3 top-5 flex flex-col  ">
             {/*user video */}
 
             <div
@@ -308,7 +321,7 @@ const Room = () => {
 
           <div className=" text-white  flex items-center justify-evenly gap-2 ">
             <div>
-              <span>Room Code: </span>
+              <span className="hidden sm:inline " >Room Code: </span>
               <span className="bg-slate-800 px-2 py-1 rounded-md shadow-md">
                 {roomID}
               </span>

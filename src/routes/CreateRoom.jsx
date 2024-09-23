@@ -31,24 +31,24 @@ const CreateRoom = () => {
   }, []);
 
   return (
+  
     <>
       <div className="flex h-screen  ">
         {/* main body part  */}
 
-        <div className="flex flex-col gap-5 w-full lg:flex-row">
+        <div className=" flex flex-col sm:flex-row w-screen  ">
           {/* this is the left part */}
-
           <div className="basis-4/6 bg-white rounded-xl p-10">
             {/* this is moto  */}
 
-            <div className="space-y-4 px-1 py-4 w-[440px]">
+            <div className="space-y-4 px-1 py-4 ">
               <h5 className="text-heading-5">
                 Connect, Collaborate, Control: Anytime, Anywhere.
               </h5>
             </div>
             {/* this is the descriptive moto  */}
 
-            <div className="space-y-4  px-1 py-4 w-[540px]">
+            <div className="space-y-4  px-1 py-4  ">
               <p className="text-body-2">
                 Connecting You Anywhere: Video Calls and Remote Desktop Access
                 for Unified Collaboration
@@ -57,7 +57,7 @@ const CreateRoom = () => {
 
             {/* this is the join session part  */}
 
-            <div className="shadow-md w-fit p-1 mt-3 flex gap-5">
+            <div className="shadow-md w-fit px-2 py-1 mt-3 flex flex-col sm:flex-row gap-5 ">
               <Button
                 size="sm"
                 className="bg-yellow-900 hover:bg-yellow-700 "
@@ -75,7 +75,7 @@ const CreateRoom = () => {
                 <fieldset className="relative max-w-md">
                   <Input
                     placeholder="Enter Room Code"
-                    className="ps-11"
+                    className=""
                     value={room}
                     onChange={(e) => setRoom(e.target.value)}
                   />
@@ -90,7 +90,9 @@ const CreateRoom = () => {
                 </Button>
               </form>
             </div>
+
             <Divider className="mt-5" size="md" color="secondary" />
+
             <p className="text-body-4 mt-1">
               <a className="text-blue-500 hover:text-blue-700" href="">
                 Learn
@@ -103,7 +105,7 @@ const CreateRoom = () => {
           <div className="flex basis-2/6 justify-center  items-center ">
             {/* carousel part  */}
 
-            <div className="rounded-xl">
+            <div className="rounded-xl ">
               <img
                 src={featureImage}
                 className="rounded-t-xl"
@@ -115,7 +117,7 @@ const CreateRoom = () => {
           </div>
         </div>
       </div>
-    </>
+    </> 
   );
 };
 

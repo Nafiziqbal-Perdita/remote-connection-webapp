@@ -27,9 +27,9 @@ const messageContainerRef = useRef(null);
     [text, io, otherUser] // Dependencies on io and otherUser
   );
 
-  useEffect(() => {
-    console.log(allText);
-  }, []);
+  // useEffect(() => {
+  //   console.log(allText);
+  // }, []);
 
  // Scroll to bottom when messages change
  useEffect(() => {
@@ -46,18 +46,18 @@ const messageContainerRef = useRef(null);
       ref={messageContainerRef}
       
       >
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <div className="bg-blue-200 text-black p-2 rounded-lg max-w-xs">
             Hey, how's your day going?
           </div>
-        </div>
+        </div> */}
 
         {/* Example Received Message */}
-        <div className="flex">
+        {/* <div className="flex">
           <div className="bg-gray-300 text-black p-2 rounded-lg max-w-xs">
             Not too bad, just a bit busy. How about you?
           </div>
-        </div>
+        </div> */}
 
         {allText.map((message, id) => (
           <div
