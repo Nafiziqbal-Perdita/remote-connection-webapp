@@ -435,8 +435,8 @@ const Room = () => {
                 </DrawerAction>
                 <DrawerContent className="">
                   <div className="h-screen flex flex-col bg-gray-100">
-                    <div className="bg-yellow-500 font-semibold opacity-90 basis-1/12 ">
-                      <DrawerClose className="absolute right-5 top-5" />
+                    <div className="bg-amber-800 text-white opacity-95 font-semibold  basis-1/12 ">
+                      <DrawerClose className="absolute bg-white rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:duration-300 right-5 top-5" />
 
                       <div className="absolute left-1/2 -translate-x-1/2 top-5 flex flex-col ">
                         <h6 className="text-body-2">Inbox</h6>

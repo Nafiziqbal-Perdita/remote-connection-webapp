@@ -68,8 +68,8 @@ const messageContainerRef = useRef(null);
           >
             <div
               className={`${
-                message.author === "me" ? "bg-blue-200" : "bg-gray-300"
-              } text-black p-2 rounded-lg max-w-xs`}
+                message.author === "me" ? "bg-amber-400 opacity-95" : "bg-gray-300"
+              } text-black  p-2 rounded-lg max-w-xs`}
             >
               {message.text} <br />
               <small>{message.author}</small>
@@ -91,7 +91,7 @@ const messageContainerRef = useRef(null);
           />
           <button
             type="submit" // Changed to submit since it's inside a form
-            className="bg-blue-500 text-white rounded-full p-2 ml-2 hover:bg-blue-600 focus:outline-none"
+            className="bg-amber-700 opacity-90 text-white rounded-full p-2 ml-2 hover:bg-amber-800 focus:outline-none"
           >
             <svg
               width="20px"
