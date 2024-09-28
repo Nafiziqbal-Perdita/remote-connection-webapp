@@ -77,7 +77,6 @@ const Room = () => {
           socketRef.current.emit("offer", payload);
         })
         .catch((e) => console.log(e));
-
     },
     [peerRef, socketRef]
   );
@@ -85,11 +84,39 @@ const Room = () => {
   // Create Peer Function
   const createPeer = useCallback(
     (userId) => {
+      // const peer = new RTCPeerConnection({
+      //   iceServers: [
+      //     { urls: "stun:stun.stunprotocol.org" },
+      //     {
+      //       urls: "turn:numb.viagenie.ca",
+      //       credential: "muazkh",
+      //       username: "webrtc@live.com",
+      //     },
+      //   ],
+      // });
+
       const peer = new RTCPeerConnection({
         iceServers: [
-          { urls: "stun:stun.stunprotocol.org" },
           {
-            urls: "turn:numb.viagenie.ca",
+            urls: "stun:stun.l.google.com:19302", // Google's STUN server
+          },
+
+          {
+            urls: "turn:192.158.29.39:3478?transport=udp", // TURN server with UDP transport
+            credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+            username: "28224511:1379330808",
+          },
+          {
+            urls: "turn:192.158.29.39:3478?transport=tcp", // TURN server with TCP transport
+            credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+            username: "28224511:1379330808",
+          },
+          {
+            urls: "stun:stun.stunprotocol.org", // Generic STUN server
+          },
+
+          {
+            urls: "turn:numb.viagenie.ca", // Public TURN server
             credential: "muazkh",
             username: "webrtc@live.com",
           },
@@ -213,19 +240,22 @@ const Room = () => {
   // Component Mounting: Setting up media and socket connection
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true, video: {
-        width:{
-          min: 640,
-          max: 1920,
-          ideal: 1280
+      .getUserMedia({
+        audio: true,
+        video: {
+          width: {
+            min: 640,
+            max: 1920,
+            ideal: 1280,
+          },
+          height: {
+            min: 480,
+            max: 1080,
+            ideal: 720,
+          },
+          facingMode: "user", //this is for fron camera for back camera user "environment"
         },
-        height:{
-          min: 480,
-          max: 1080,
-          ideal: 720
-        },
-        facingMode: "user"//this is for fron camera for back camera user "environment"
-      } })
+      })
       .then((stream) => {
         userVideo.current.srcObject = stream;
         userStream.current = stream;
@@ -249,17 +279,15 @@ const Room = () => {
           callUser(userId);
         });
 
-        socketRef.current.on("room full",({message})=>{
+        socketRef.current.on("room full", ({ message }) => {
           alert(message);
           navigate("/");
-        })
-
+        });
 
         socketRef.current.on("answer", handleAnswer);
         socketRef.current.on("offer", handleRecieveCall);
         socketRef.current.on("recieveChat", handleRecieveText);
         socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
-        
       });
 
     return () => {
@@ -333,7 +361,7 @@ const Room = () => {
 
           <div className=" text-white  flex items-center justify-evenly gap-2 ">
             <div>
-              <span className="hidden sm:inline " >Room Code: </span>
+              <span className="hidden sm:inline ">Room Code: </span>
               <span className="bg-slate-800 px-2 py-1 rounded-md shadow-md">
                 {roomID}
               </span>
