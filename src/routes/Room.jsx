@@ -213,7 +213,19 @@ const Room = () => {
   // Component Mounting: Setting up media and socket connection
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
+      .getUserMedia({ audio: true, video: {
+        width:{
+          min: 640,
+          max: 1920,
+          ideal: 1280
+        },
+        height:{
+          min: 480,
+          max: 1080,
+          ideal: 720
+        },
+        facingMode: "user"//this is for fron camera for back camera user "environment"
+      } })
       .then((stream) => {
         userVideo.current.srcObject = stream;
         userStream.current = stream;
