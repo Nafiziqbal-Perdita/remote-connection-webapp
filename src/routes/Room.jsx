@@ -161,6 +161,12 @@ const Room = () => {
         remotePeerId.current = peerId;
         establishConnection(peerId);
       });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect(); // Disconnect the socket
+        }
+      };
     });
 
     peerRef.current.on("call", (call) => {
@@ -188,7 +194,9 @@ const Room = () => {
       );
     });
     return () => {
-      socketRef.current.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 
