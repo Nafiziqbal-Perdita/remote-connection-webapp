@@ -1,9 +1,16 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
-const Chat = ({ io, otherUser, room, setAllText, allText }) => {
+const Chat = ({
+  io,
+  otherUser,
+  room,
+  setAllText,
+  allText,
+  handleRecieveText,
+}) => {
   const [text, setText] = useState("");
-// Refs for the last message element and message container
-const messageContainerRef = useRef(null);
+  // Refs for the last message element and message container
+  const messageContainerRef = useRef(null);
 
   // Send text to the other user
   const sendText = useCallback(
@@ -27,24 +34,24 @@ const messageContainerRef = useRef(null);
     [text, io, otherUser] // Dependencies on io and otherUser
   );
 
-  // useEffect(() => {
-  //   console.log(allText);
-  // }, []);
+  useEffect(() => {
+    handleRecieveText("");
+    // console.log("Function Called");
+  }, [io, handleRecieveText]);
 
- // Scroll to bottom when messages change
- useEffect(() => {
-  if (messageContainerRef.current) {
-    messageContainerRef.current.scrollTop =
-      messageContainerRef.current.scrollHeight;
-  }
-}, [allText]);
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+    }
+  }, [allText]);
 
   return (
     <>
-      <div className="basis-11/12 overflow-y-auto p-4 flex flex-col space-y-2 "
-      
-      ref={messageContainerRef}
-      
+      <div
+        className="basis-11/12 overflow-y-auto p-4 flex flex-col space-y-2 "
+        ref={messageContainerRef}
       >
         {/* <div className="flex justify-end">
           <div className="bg-blue-200 text-black p-2 rounded-lg max-w-xs">
@@ -59,23 +66,32 @@ const messageContainerRef = useRef(null);
           </div>
         </div> */}
 
-        {allText.map((message, id) => (
-          <div
-            key={id}
-            className={`flex ${
-              message.author === "me" ? "justify-end" : "justify-start"
-            }`}
-          >
+        {allText.map((message, id) => {
+          // Skip rendering if the message is from the system
+          if (message.author === "system") {
+            return null; // Do not render system messages
+          }
+
+          return (
             <div
-              className={`${
-                message.author === "me" ? "bg-amber-400 opacity-95" : "bg-gray-300"
-              } text-black  p-2 rounded-lg max-w-xs`}
+              key={id}
+              className={`flex ${
+                message.author === "you" ? "justify-start" : "justify-end"
+              }`}
             >
-              {message.text} <br />
-              <small>{message.author}</small>
-            </div>
-          </div>
-        ))}
+              <div
+                className={`${
+                  message.author === "you"
+                    ? "bg-amber-400 opacity-95"
+                    : "bg-gray-300"
+                } text-black p-2 rounded-lg max-w-xs`}
+              >
+                {message.text} <br />
+                <small>{`${message.author==="you"?"":""}`}</small>
+                </div>
+              </div>
+          );
+        })}
       </div>
 
       <div className="bg-white p-4 flex items-center">
