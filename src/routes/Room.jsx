@@ -124,8 +124,10 @@ const Room = () => {
     peerRef.current.on("open", (id) => {
       myPeerId.current = id;
       // console.log("My peer id is", myPeerId.current);
+      const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+      // console.log("Socket url",SOCKET_URL); // Should print the correct URL
 
-      socketRef.current = io("http://localhost:7000", {
+      socketRef.current = io(SOCKET_URL, {
         withCredentials: true,
         transports: ["websocket", "polling"],
       });
