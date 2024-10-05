@@ -121,22 +121,19 @@ const Room = () => {
 
   useEffect(() => {
     // peerRef.current = new Peer();
-     peerRef.current = new Peer({
+    
+    
+     peerRef = new Peer({
       config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" }, // Public STUN server
-          { urls: "stun:stun1.l.google.com:19302" }, // Another STUN server
-          { urls: "stun:stun2.l.google.com:19302" }, // Another STUN server
-        ],
-      },
+        iceServers: [{ url: "stun:stun.l.google.com:19302" }],
+      } /* Sample servers, please use appropriate ones */,
     });
-
 
 
 
     peerRef.current.on("open", (id) => {
       myPeerId.current = id;
-      // console.log("My peer id is", myPeerId.current);
+      console.log("My peer id is", myPeerId.current);
       const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
       // console.log("Socket url",SOCKET_URL); // Should print the correct URL
 
