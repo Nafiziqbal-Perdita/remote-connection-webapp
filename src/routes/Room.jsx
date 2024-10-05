@@ -123,7 +123,7 @@ const Room = () => {
     // peerRef.current = new Peer();
     
     
-     peerRef = new Peer({
+     peerRef.current = new Peer({
       config: {
         iceServers: [{ url: "stun:stun.l.google.com:19302" }],
       } /* Sample servers, please use appropriate ones */,
