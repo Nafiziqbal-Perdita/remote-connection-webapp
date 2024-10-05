@@ -120,7 +120,20 @@ const Room = () => {
   );
 
   useEffect(() => {
-    peerRef.current = new Peer();
+    // peerRef.current = new Peer();
+     peerRef.current = new Peer({
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }, // Public STUN server
+          { urls: "stun:stun1.l.google.com:19302" }, // Another STUN server
+          { urls: "stun:stun2.l.google.com:19302" }, // Another STUN server
+        ],
+      },
+    });
+
+
+
+
     peerRef.current.on("open", (id) => {
       myPeerId.current = id;
       // console.log("My peer id is", myPeerId.current);
