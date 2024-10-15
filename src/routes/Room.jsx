@@ -42,6 +42,8 @@ const Room = () => {
   const [myVideoShow, setMyVideoShow] = useState(true);
   const [socketState, setSocketState] = useState(null);
   const [loader, setLoader] = useState(true);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
   const navigate = useNavigate();
   const establishConnection = useCallback((peerId) => {
     // console.log("Remote user is", remoteUserSocketId.current);
@@ -121,15 +123,12 @@ const Room = () => {
 
   useEffect(() => {
     // peerRef.current = new Peer();
-    
-    
-     peerRef.current = new Peer({
+
+    peerRef.current = new Peer({
       config: {
         iceServers: [{ url: "stun:stun.l.google.com:19302" }],
       } /* Sample servers, please use appropriate ones */,
     });
-
-
 
     peerRef.current.on("open", (id) => {
       myPeerId.current = id;
@@ -146,6 +145,9 @@ const Room = () => {
       socketRef.current.on("connect", () => {
         // console.log("Socket connected with ID: ", socketRef.current.id);
       });
+
+
+
 
       socketRef.current.emit("join room", roomID);
       // console.log("User joined room:", roomID);
@@ -237,6 +239,30 @@ const Room = () => {
     setCodeCopy(false);
   };
 
+  
+
+  const handleMouseMove = useCallback(
+    (e) => {
+      const rect = remoteVideo.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;   // Correct usage of e.clientX
+      const y = e.clientY - rect.top;     // Correct usage of e.clientY
+  
+      const newPosition = { x, y,to:remoteUserSocketId.current }; // Create a local variable to store the new position
+      setMousePosition(newPosition); // Update the state
+  
+      // Log the calculated coordinates directly
+      console.log("Mouse Position:", newPosition);
+      
+      // Emit the new mouse position to the socket
+      socketRef.current.emit("mouseMove", { pos: newPosition });
+    },
+    [remoteVideo, socketRef]
+  );
+  
+
+
+
+
   if (loader) {
     return (
       <>
@@ -260,6 +286,7 @@ const Room = () => {
 
             <div className="h-full w-full  max-w-full flex  ">
               <video
+                onMouseMove={handleMouseMove}
                 id="remotevideo"
                 className=" w-full "
                 ref={remoteVideo}
