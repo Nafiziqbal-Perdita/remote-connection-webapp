@@ -24,7 +24,7 @@ import {
 } from "phosphor-react";
 import { Tooltip } from "@radix-ui/themes";
 import Chat from "./Chat";
-
+import ReactPlayer from "react-player";
 const Room = () => {
   const { roomID } = useParams();
   const socketRef = useRef(null);
@@ -64,6 +64,21 @@ const Room = () => {
 
         call.on("stream", (remoteStream) => {
           remoteVideo.current.srcObject = remoteStream;
+
+          remoteVideo.onloadedmetadata = () => {
+            // Get the video track settings (e.g., width and height of the remote shared screen)
+            const videoTrack = remoteStream.getVideoTracks()[0];
+            const settings = videoTrack.getSettings();
+            console.log(
+              `Remote video width: ${settings.width}, height: ${settings.height}`
+            );
+            const remoteWidth = settings.width || 1280; // Default width if not provided
+            const remoteHeight = settings.height || 720; // Default height if not provided
+
+            // Set the video element size to match the remote screen's resolution/aspect ratio
+            remoteVideo.style.width = `${remoteWidth}px`;
+            remoteVideo.style.height = `${remoteHeight}px`;
+          };
         });
       },
       (err) => {
@@ -146,9 +161,6 @@ const Room = () => {
         // console.log("Socket connected with ID: ", socketRef.current.id);
       });
 
-
-
-
       socketRef.current.emit("join room", roomID);
       // console.log("User joined room:", roomID);
       setLoader(false);
@@ -198,6 +210,20 @@ const Room = () => {
 
           call.on("stream", (remoteStream) => {
             remoteVideo.current.srcObject = remoteStream;
+            remoteVideo.onloadedmetadata = () => {
+              // Get the video track settings (e.g., width and height of the remote shared screen)
+              const videoTrack = remoteStream.getVideoTracks()[0];
+              const settings = videoTrack.getSettings();
+              console.log(
+                `Remote video width: ${settings.width}, height: ${settings.height}`
+              );
+              const remoteWidth = settings.width || 1280; // Default width if not provided
+              const remoteHeight = settings.height || 720; // Default height if not provided
+
+              // Set the video element size to match the remote screen's resolution/aspect ratio
+              remoteVideo.style.width = `${remoteWidth}px`;
+              remoteVideo.style.height = `${remoteHeight}px`;
+            };
           });
         },
         (err) => {
@@ -239,26 +265,36 @@ const Room = () => {
     setCodeCopy(false);
   };
 
-  
-
   const handleMouseMove = useCallback(
     (e) => {
       const rect = remoteVideo.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;   // Correct usage of e.clientX
-      const y = e.clientY - rect.top;     // Correct usage of e.clientY
-  
-      const newPosition = { x, y,to:remoteUserSocketId.current }; // Create a local variable to store the new position
+      const x = e.clientX - rect.left; // Correct usage of e.clientX
+      const y = e.clientY - rect.top; // Correct usage of e.clientY
+
+      const newPosition = { x, y, to: remoteUserSocketId.current }; // Create a local variable to store the new position
       setMousePosition(newPosition); // Update the state
-  
+
       // Log the calculated coordinates directly
-      console.log("Mouse Position:", newPosition);
-      
+      // console.log("Mouse Position:", newPosition);
+
       // Emit the new mouse position to the socket
       socketRef.current.emit("mouseMove", { pos: newPosition });
     },
     [remoteVideo, socketRef]
   );
-  
+
+
+const tooggleFullScreen=()=>{
+  if (remoteVideo.current){
+    if (!document.fullscreenElement){
+      remoteVideo.current.requestFullscreen();
+    }else{
+      document.exitFullscreen();
+    }
+  }
+}
+
+
 
 
 
@@ -284,13 +320,21 @@ const Room = () => {
           <div className=" relative  basis-11/12">
             {/* this is remote video stream */}
 
-            <div className="h-full w-full  max-w-full flex  ">
+            <div className="h-full w-full  max-w-full flex items-center justify-center  ">
               <video
                 onMouseMove={handleMouseMove}
                 id="remotevideo"
-                className=" w-full "
+                className="max-w-full max-h-full" // Use both width and height constraints
                 ref={remoteVideo}
                 autoPlay
+                playsInline
+                onClick={(e) => e.stopPropagation()} // Prevent click from pausing the video
+                style={{
+                  width: "100vw", // Full viewport width
+                  height: "100vh", // Full viewport height
+                  objectFit: "contain" // Ensure aspect ratio is maintained
+                }}
+          
               />
             </div>
 
@@ -372,6 +416,7 @@ const Room = () => {
       </div> */}
 
               <div>
+                <button className="p-4 hover:bg-red-800"  onClick={""}></button>
                 <Tooltip
                   content="Share Screen"
                   className="text-black px-2 py-1 rounded-lg bg-white opacity-85"
