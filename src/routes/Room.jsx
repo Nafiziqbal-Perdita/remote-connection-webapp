@@ -266,38 +266,61 @@ const Room = () => {
   };
 
   const handleMouseMove = useCallback(
-    (e) => {
-      const rect = remoteVideo.current.getBoundingClientRect();
-      const x = e.clientX - rect.left; // Correct usage of e.clientX
-      const y = e.clientY - rect.top; // Correct usage of e.clientY
+    ({ clientX, clientY }) => {
 
-      const newPosition = { x, y, to: remoteUserSocketId.current }; // Create a local variable to store the new position
-      setMousePosition(newPosition); // Update the state
+      const videoElement=remoteVideo.current;
+      const {clientWidth,clientHeight }=videoElement;
+
+      console.log("x",clientX);
+      console.log("y",clientY);
+      console.log('windowH', clientWidth);
+      console.log('windowW',clientHeight);
+
+      // const rect = remoteVideo.current.getBoundingClientRect();
+      // const x = e.clientX - rect.left; // Correct usage of e.clientX
+      // const y = e.clientY - rect.top; // Correct usage of e.clientY
+
+      // const newPosition = { x, y, to: remoteUserSocketId.current }; // Create a local variable to store the new position
+      // setMousePosition(newPosition); // Update the state
 
       // Log the calculated coordinates directly
       // console.log("Mouse Position:", newPosition);
 
+
+      const newPosition={
+        x:clientX,
+        y:clientY,
+        clientHeight,
+        clientWidth,
+        to:remoteUserSocketId.current
+      }
+
+
       // Emit the new mouse position to the socket
       socketRef.current.emit("mouseMove", { pos: newPosition });
+
+
+
+
+
     },
     [remoteVideo, socketRef]
   );
 
+  const tooggleFullScreen = () => {
+ 
+    
+  };
 
-const tooggleFullScreen=()=>{
-  if (remoteVideo.current){
-    if (!document.fullscreenElement){
-      remoteVideo.current.requestFullscreen();
-    }else{
-      document.exitFullscreen();
-    }
-  }
-}
+  const handlePlay = (e) => {
+    e.preventDefault();
+    remoteVideo.current.play(); // Prevent the video from pausing
+  };
 
-
-
-
-
+  const handlePause = (e) => {
+    e.preventDefault();
+    remoteVideo.current.play(); // Prevent the video from pausing
+  };
 
   if (loader) {
     return (
@@ -317,24 +340,17 @@ const tooggleFullScreen=()=>{
           {/* main body  */}
           {/* here the user joined notification will show  */}
 
-          <div className=" relative  basis-11/12">
+          <div className=" relative  basis-11/12 overflow-hidden">
             {/* this is remote video stream */}
 
-            <div className="h-full w-full  max-w-full flex items-center justify-center  ">
+            <div className="  w-full h-full flex items-center justify-center   ">
               <video
                 onMouseMove={handleMouseMove}
                 id="remotevideo"
-                className="max-w-full max-h-full" // Use both width and height constraints
+                className=" " // Full width and responsive height
                 ref={remoteVideo}
                 autoPlay
                 playsInline
-                onClick={(e) => e.stopPropagation()} // Prevent click from pausing the video
-                style={{
-                  width: "100vw", // Full viewport width
-                  height: "100vh", // Full viewport height
-                  objectFit: "contain" // Ensure aspect ratio is maintained
-                }}
-          
               />
             </div>
 
@@ -355,7 +371,7 @@ const tooggleFullScreen=()=>{
             </div>
           </div>
           {/* footer part  */}
-          <div className="relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center   opacity-90  ">
+          <div className="relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center opacity-90  ">
             {/* this is Control section */}
 
             <div className=" text-white  flex items-center justify-evenly gap-2 ">
@@ -416,7 +432,12 @@ const tooggleFullScreen=()=>{
       </div> */}
 
               <div>
-                <button className="p-4 hover:bg-red-800"  onClick={""}></button>
+                {/* <button
+                  className="p-4 hover:bg-red-800"
+                  onClick={tooggleFullScreen}
+                >
+                  full
+                </button> */}
                 <Tooltip
                   content="Share Screen"
                   className="text-black px-2 py-1 rounded-lg bg-white opacity-85"
