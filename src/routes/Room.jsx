@@ -238,15 +238,41 @@ const Room = () => {
     };
   }, []);
 
+
+
+  const handleKeyDown = (event) => {
+  
+    // Send the key event to your remote server or handle it as needed
+    const keyEvent = {
+      key: event.key,
+      code: event.code,
+      to: remoteUserSocketId.current
+    };
+      // Log the pressed key
+      console.log(`Key pressed: ${keyEvent.code}`);
+
+
+      socketRef.current.emit('keyPress',keyEvent);
+    
+      
+
+  };
+
+
+
+
+
   useEffect(() => {
     // console.log("This is the second useEffect");
     if (socketRef.current) {
       // console.log("Here the code entered");
       socketRef.current.on("recieveChat", handleRecieveText);
+      window.addEventListener('keydown',handleKeyDown);
 
       // Cleanup function to remove the listener when the component unmounts or socketRef changes
       return () => {
         socketRef.current.off("recieveChat", handleRecieveText);
+        window.removeEventListener('keydown',handleKeyDown);
       };
     }
   }, [socketRef.current, handleRecieveText]);
@@ -286,7 +312,6 @@ const Room = () => {
   //     // Log the calculated coordinates directly
   //     // console.log("Mouse Position:", newPosition);
 
-
   //     const newPosition={
   //       x:clientX,
   //       y:clientY,
@@ -295,48 +320,50 @@ const Room = () => {
   //       to:remoteUserSocketId.current
   //     }
 
-
   //     // Emit the new mouse position to the socket
   //     socketRef.current.emit("mouseMove", { pos: newPosition });
-
-
-
-
 
   //   },
   //   [remoteVideo, socketRef]
   // );
 
+  const handleMouseMove = useCallback(
+    ({ clientX, clientY }) => {
+      const videoElement = remoteVideo.current;
+      if (videoElement) {
+        const rect = videoElement.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
 
+        const newPosition = {
+          x,
+          y,
+          clientHeight: rect.height,
+          clientWidth: rect.width,
+          to: remoteUserSocketId.current,
+        };
+        console.log("Mouse Position:", newPosition);
 
-  const handleMouseMove = useCallback(({ clientX, clientY }) => {
-    const videoElement = remoteVideo.current;
-    if (videoElement) {
-      const rect = videoElement.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-  
-      const newPosition = { x, y, clientHeight: rect.height, clientWidth: rect.width, to: remoteUserSocketId.current };
-      console.log("Mouse Position:", newPosition);
-  
-      socketRef.current.emit("mouseMove", { pos: newPosition });
-    }
-  }, [remoteVideo, socketRef]);
-  
+        socketRef.current.emit("mouseMove", { pos: newPosition });
+      }
+    },
+    [remoteVideo, socketRef]
+  );
 
+  const handleMouseClick = useCallback((e) => {
+    e.preventDefault();
 
-  const handleMouseClick=useCallback((e)=>{
-e.preventDefault();
+    console.log("click", e.button);
 
-console.log("click",e.button);
+    const data = {
+      button: e.button,
+      to: remoteUserSocketId.current,
+    };
 
+    // Emit the click event data via the socket
+    socketRef.current.emit("mouseClick", data);
+  }, []);
 
-
-  },[]);
-  
-
- 
-  
   if (loader) {
     return (
       <>
@@ -388,7 +415,7 @@ console.log("click",e.button);
             </div>
           </div>
           {/* footer part  */}
-          <div className=" hidden relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center opacity-90  ">
+          <div className="  relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center opacity-90  ">
             {/* this is Control section */}
 
             <div className=" text-white  flex items-center justify-evenly gap-2 ">
