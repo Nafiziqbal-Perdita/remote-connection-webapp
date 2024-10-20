@@ -265,63 +265,78 @@ const Room = () => {
     setCodeCopy(false);
   };
 
-  const handleMouseMove = useCallback(
-    ({ clientX, clientY }) => {
+  // const handleMouseMove = useCallback(
+  //   ({ clientX, clientY }) => {
 
-      const videoElement=remoteVideo.current;
-      const {clientWidth,clientHeight }=videoElement;
+  //     const videoElement=remoteVideo.current;
+  //     const {clientWidth,clientHeight }=videoElement;
 
-      console.log("x",clientX);
-      console.log("y",clientY);
-      console.log('windowH', clientWidth);
-      console.log('windowW',clientHeight);
+  //     console.log("x",clientX);
+  //     console.log("y",clientY);
+  //     console.log('windowH', clientWidth);
+  //     console.log('windowW',clientHeight);
 
-      // const rect = remoteVideo.current.getBoundingClientRect();
-      // const x = e.clientX - rect.left; // Correct usage of e.clientX
-      // const y = e.clientY - rect.top; // Correct usage of e.clientY
+  //     // const rect = remoteVideo.current.getBoundingClientRect();
+  //     // const x = e.clientX - rect.left; // Correct usage of e.clientX
+  //     // const y = e.clientY - rect.top; // Correct usage of e.clientY
 
-      // const newPosition = { x, y, to: remoteUserSocketId.current }; // Create a local variable to store the new position
-      // setMousePosition(newPosition); // Update the state
+  //     // const newPosition = { x, y, to: remoteUserSocketId.current }; // Create a local variable to store the new position
+  //     // setMousePosition(newPosition); // Update the state
 
-      // Log the calculated coordinates directly
-      // console.log("Mouse Position:", newPosition);
-
-
-      const newPosition={
-        x:clientX,
-        y:clientY,
-        clientHeight,
-        clientWidth,
-        to:remoteUserSocketId.current
-      }
+  //     // Log the calculated coordinates directly
+  //     // console.log("Mouse Position:", newPosition);
 
 
-      // Emit the new mouse position to the socket
+  //     const newPosition={
+  //       x:clientX,
+  //       y:clientY,
+  //       clientHeight,
+  //       clientWidth,
+  //       to:remoteUserSocketId.current
+  //     }
+
+
+  //     // Emit the new mouse position to the socket
+  //     socketRef.current.emit("mouseMove", { pos: newPosition });
+
+
+
+
+
+  //   },
+  //   [remoteVideo, socketRef]
+  // );
+
+
+
+  const handleMouseMove = useCallback(({ clientX, clientY }) => {
+    const videoElement = remoteVideo.current;
+    if (videoElement) {
+      const rect = videoElement.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+  
+      const newPosition = { x, y, clientHeight: rect.height, clientWidth: rect.width, to: remoteUserSocketId.current };
+      console.log("Mouse Position:", newPosition);
+  
       socketRef.current.emit("mouseMove", { pos: newPosition });
+    }
+  }, [remoteVideo, socketRef]);
+  
+
+
+  const handleMouseClick=useCallback((e)=>{
+e.preventDefault();
+
+console.log("click",e.button);
 
 
 
+  },[]);
+  
 
-
-    },
-    [remoteVideo, socketRef]
-  );
-
-  const tooggleFullScreen = () => {
  
-    
-  };
-
-  const handlePlay = (e) => {
-    e.preventDefault();
-    remoteVideo.current.play(); // Prevent the video from pausing
-  };
-
-  const handlePause = (e) => {
-    e.preventDefault();
-    remoteVideo.current.play(); // Prevent the video from pausing
-  };
-
+  
   if (loader) {
     return (
       <>
@@ -346,6 +361,8 @@ const Room = () => {
             <div className="  w-full h-full flex items-center justify-center   ">
               <video
                 onMouseMove={handleMouseMove}
+                onClick={handleMouseClick}
+                onContextMenu={handleMouseClick}
                 id="remotevideo"
                 className=" " // Full width and responsive height
                 ref={remoteVideo}
