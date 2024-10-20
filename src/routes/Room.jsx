@@ -371,7 +371,7 @@ const Room = () => {
             </div>
           </div>
           {/* footer part  */}
-          <div className="relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center opacity-90  ">
+          <div className=" hidden relative basis-1/12 bg-gray-950  h-14 mb-2 px-3 py-2 shadow-md flex justify-between items-center opacity-90  ">
             {/* this is Control section */}
 
             <div className=" text-white  flex items-center justify-evenly gap-2 ">
