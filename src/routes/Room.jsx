@@ -244,12 +244,14 @@ const Room = () => {
   
     // Send the key event to your remote server or handle it as needed
     const keyEvent = {
+      isShift:event.shiftKey,
       key: event.key,
       code: event.code,
       to: remoteUserSocketId.current
     };
       // Log the pressed key
       console.log(`Key pressed: ${keyEvent.code}`);
+      console.log(`Key pressed: ${keyEvent}`);
 
 
       socketRef.current.emit('keyPress',keyEvent);
@@ -342,7 +344,7 @@ const Room = () => {
           clientWidth: rect.width,
           to: remoteUserSocketId.current,
         };
-        console.log("Mouse Position:", newPosition);
+        // console.log("Mouse Position:", newPosition);
 
         socketRef.current.emit("mouseMove", { pos: newPosition });
       }
@@ -363,6 +365,47 @@ const Room = () => {
     // Emit the click event data via the socket
     socketRef.current.emit("mouseClick", data);
   }, []);
+
+//these are deprecated
+  const handleMouseScroll = useCallback(
+    (event) => {
+
+      const scrollData = {
+        deltaY: event.deltaY,
+        to: remoteUserSocketId.current,
+      };
+      console.log("Scroll detected", scrollData);
+  
+      // Emit scroll data via socket
+      socketRef.current.emit("mouseScroll", scrollData);
+    },
+    [socketRef]
+  );
+  
+
+  useEffect(() => {
+    const attachScrollListener = () => {
+      if (remoteVideo.current) {
+        remoteVideo.current.addEventListener("wheel", handleMouseScroll);
+      }
+    };
+  
+    const timeoutId = setTimeout(attachScrollListener, 100); // Adjust the delay as needed
+  
+    return () => {
+      clearTimeout(timeoutId);
+      if (remoteVideo.current) {
+        remoteVideo.current.removeEventListener("wheel", handleMouseScroll);
+      }
+    };
+  }, [handleMouseScroll]);
+  
+
+
+
+
+
+
 
   if (loader) {
     return (
