@@ -87,6 +87,8 @@ const Room = () => {
     );
   }, []);
 
+
+
   const shareScreen = useCallback(() => {
     navigator.mediaDevices
       .getDisplayMedia({ cursor: true })
@@ -138,10 +140,34 @@ const Room = () => {
 
   useEffect(() => {
     // peerRef.current = new Peer();
+ // Hardcoded ICE server configuration
+ const iceServers = [
+  { urls: "stun:stun.relay.metered.ca:80" },
+  {
+    urls: "turn:global.relay.metered.ca:80",
+    username: "e96b95d63751341b825ac12d",
+    credential: "4s5QxC4Pa+CRq67V",
+  },
+  {
+    urls: "turn:global.relay.metered.ca:80?transport=tcp",
+    username: "e96b95d63751341b825ac12d",
+    credential: "4s5QxC4Pa+CRq67V",
+  },
+  {
+    urls: "turn:global.relay.metered.ca:443",
+    username: "e96b95d63751341b825ac12d",
+    credential: "4s5QxC4Pa+CRq67V",
+  },
+  {
+    urls: "turns:global.relay.metered.ca:443?transport=tcp",
+    username: "e96b95d63751341b825ac12d",
+    credential: "4s5QxC4Pa+CRq67V",
+  },
+];
 
     peerRef.current = new Peer({
       config: {
-        iceServers: [{ url: "stun:stun.l.google.com:19302" }],
+        iceServers: iceServers ,
       } /* Sample servers, please use appropriate ones */,
     });
 
@@ -279,6 +305,11 @@ const Room = () => {
     }
   }, [socketRef.current, handleRecieveText]);
 
+
+
+
+
+  
   const leaveRoom = () => {
     if (socketRef.current) {
       socketRef.current.disconnect();
@@ -568,42 +599,7 @@ const Room = () => {
                 </Button>
               </div>
 
-              <div>
-                {/* this is message Drawer */}
-
-                <Drawer position="left">
-                  <DrawerAction asChild>
-                    <Button
-                      shape="icon"
-                      size="lg"
-                      className="bg-amber-800 opacity-80 rounded-full hover:scale-105 hover:duration-500 hover:bg-amber-500 hover:text-black hover:-translate-y-2 "
-                    >
-                      <ChatCircleDots size={30} />
-                    </Button>
-                  </DrawerAction>
-                  <DrawerContent className="">
-                    <div className="h-screen flex flex-col bg-gray-100">
-                      <div className="bg-yellow-500 font-semibold opacity-90 basis-1/12 ">
-                        <DrawerClose className="absolute right-5 top-5" />
-
-                        <div className="absolute left-1/2 -translate-x-1/2 top-5 flex flex-col ">
-                          <h6 className="text-body-2">Inbox</h6>
-                        </div>
-                      </div>
-
-                      {/* chat function  */}
-                      <Chat
-                        io={socketRef}
-                        otherUser={remoteUserSocketId}
-                        room={roomID}
-                        setAllText={setAllText}
-                        allText={allText}
-                        handleRecieveText={handleRecieveText}
-                      />
-                    </div>
-                  </DrawerContent>
-                </Drawer>
-              </div>
+        
             </div>
           </div>
         </div>

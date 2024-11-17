@@ -21,6 +21,7 @@ const CreateRoom = () => {
   };
 
   useEffect(() => {
+    console.log("New");
     const hasRefreshed = sessionStorage.getItem("hasRefreshed");
 
     if (hasRefreshed === "false") {
@@ -29,6 +30,21 @@ const CreateRoom = () => {
       window.location.reload(); //trigger a refresh so that it should turn of the camera
     }
   }, []);
+
+
+// useEffect( async ()=>{
+// console.log("Calling turn server" );
+// const response= await fetch("https://technoverse.metered.live/api/v1/turn/credentials?apiKey=22fb526fdc439a8fb30a89503c1397ae2a2a");
+// const iceServer=await response.json();
+// console.log(iceServer);
+
+// },[]);
+
+
+
+
+
+
 
   return (
   
